@@ -11,6 +11,20 @@ export type Product = {
   updated_at: string;
 };
 
+export type Contract = {
+  id: number;
+  tenant: string;
+  start_date: string;
+  term: number;
+  sqm: number;
+  license_fee: number;
+  services_fee: number;
+  license_fee_increase: number;
+  services_fee_increase: number;
+  photo_urls: string[];
+  updated_at: string;
+};
+
 //Info: The following data is used for the sidebar navigation and Cmd K bar.
 export const navItems: NavItem[] = [
   {
@@ -28,6 +42,14 @@ export const navItems: NavItem[] = [
     shortcut: ['p', 'p'],
     isActive: false,
     items: [] // No child items
+  },
+  {
+    title: 'Contracts',
+    url: '/dashboard/contract',
+    icon: 'product',
+    shortcut: ['c', 'c'],
+    isActive: false,
+    items: []
   },
   {
     title: 'Account',
