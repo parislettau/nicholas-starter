@@ -20,6 +20,20 @@ export type Product = {
   updated_at: string;
 };
 
+export type Contract = {
+  id: number;
+  tenant: string;
+  start_date: string;
+  term: number;
+  sqm: number;
+  license_fee: number;
+  services_fee: number;
+  license_fee_increase: number;
+  services_fee_increase: number;
+  photo_urls: string[];
+  updated_at: string;
+};
+
 // Mock product data store
 export const fakeProducts = {
   records: [] as Product[], // Holds the list of product objects
@@ -155,3 +169,86 @@ export const fakeProducts = {
 
 // Initialize sample products
 fakeProducts.initialize();
+
+// Mock contract data store
+export const fakeContracts = {
+  records: [] as Contract[],
+
+  initialize() {
+    const sample: Contract[] = [];
+    function generate(id: number): Contract {
+      const start = faker.date.between({ from: '2021-01-01', to: '2024-12-31' });
+      const term = faker.number.int({ min: 12, max: 60 });
+      const photo = `https://api.slingacademy.com/public/sample-products/${id}.png`;
+      return {
+        id,
+        tenant: faker.company.name(),
+        start_date: start.toISOString(),
+        term,
+        sqm: faker.number.int({ min: 50, max: 500 }),
+        license_fee: faker.number.int({ min: 500, max: 5000 }),
+        services_fee: faker.number.int({ min: 100, max: 1000 }),
+        license_fee_increase: faker.number.int({ min: 1, max: 5 }),
+        services_fee_increase: faker.number.int({ min: 1, max: 5 }),
+        photo_urls: [photo],
+        updated_at: faker.date.recent().toISOString()
+      };
+    }
+
+    for (let i = 1; i <= 20; i++) {
+      sample.push(generate(i));
+    }
+
+    this.records = sample;
+  },
+
+  async getAll({ search }: { search?: string }) {
+    let results = [...this.records];
+    if (search) {
+      results = matchSorter(results, search, { keys: ['tenant'] });
+    }
+    return results;
+  },
+
+  async getContracts({
+    page = 1,
+    limit = 10,
+    search
+  }: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }) {
+    await delay(1000);
+    const all = await this.getAll({ search });
+    const total = all.length;
+    const offset = (page - 1) * limit;
+    const paginated = all.slice(offset, offset + limit);
+    const currentTime = new Date().toISOString();
+    return {
+      success: true,
+      time: currentTime,
+      total_contracts: total,
+      offset,
+      limit,
+      contracts: paginated
+    };
+  },
+
+  async getContractById(id: number) {
+    await delay(1000);
+    const contract = this.records.find((c) => c.id === id);
+    if (!contract) {
+      return { success: false, message: `Contract with ID ${id} not found` };
+    }
+    const currentTime = new Date().toISOString();
+    return {
+      success: true,
+      time: currentTime,
+      contract
+    };
+  }
+};
+
+// Initialize sample contracts
+fakeContracts.initialize();
